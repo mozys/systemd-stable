@@ -94,6 +94,9 @@ struct Manager {
         struct ntp_msg ntpmsg;
         struct timespec origin_time, dest_time;
         bool spike;
+
+        /* Option to sync even if server is not synchronized */
+        bool ignore_server_not_synced;
 };
 
 int manager_new(Manager **ret);

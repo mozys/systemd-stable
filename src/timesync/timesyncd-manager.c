@@ -498,8 +498,13 @@ static int manager_receive_response(sd_event_source *source, int fd, uint32_t re
 
         if (NTP_FIELD_LEAP(ntpmsg.field) == NTP_LEAP_NOTINSYNC ||
             ntpmsg.stratum == 0 || ntpmsg.stratum >= 16) {
-                log_debug("Server is not synchronized. Disconnecting.");
-                return manager_connect(m);
+                if(m->ignore_server_not_synced) {
+                        log_info("NTP server reports not synchronized. Syncing anyway.");
+                }
+                else {
+                        log_warning("Server is not synchronized. Disconnecting.");
+                        return manager_connect(m);
+                }
         }
 
         if (!IN_SET(NTP_FIELD_VERSION(ntpmsg.field), 3, 4)) {

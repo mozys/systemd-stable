@@ -120,5 +120,9 @@ int manager_parse_config_file(Manager *m) {
                 m->poll_interval_max_usec = MAX(NTP_POLL_INTERVAL_MAX_USEC, m->poll_interval_min_usec * 32);
         }
 
+        if (m->ignore_server_not_synced) {
+                log_debug("timesync will sync to non synchronized ntp servers.");
+        }
+
         return r;
 }
