@@ -492,7 +492,7 @@ static int manager_receive_response(sd_event_source *source, int fd, uint32_t re
 
         if (be32toh(ntpmsg.recv_time.sec) < TIME_EPOCH + OFFSET_1900_1970 ||
             be32toh(ntpmsg.trans_time.sec) < TIME_EPOCH + OFFSET_1900_1970) {
-                log_debug("Invalid reply, returned times before epoch. Ignoring.");
+                log_warning("Invalid reply, returned times before epoch. Ignoring.");
                 return manager_connect(m);
         }
 
@@ -503,18 +503,18 @@ static int manager_receive_response(sd_event_source *source, int fd, uint32_t re
         }
 
         if (!IN_SET(NTP_FIELD_VERSION(ntpmsg.field), 3, 4)) {
-                log_debug("Response NTPv%d. Disconnecting.", NTP_FIELD_VERSION(ntpmsg.field));
+                log_warning("Response NTPv%d. Disconnecting.", NTP_FIELD_VERSION(ntpmsg.field));
                 return manager_connect(m);
         }
 
         if (NTP_FIELD_MODE(ntpmsg.field) != NTP_MODE_SERVER) {
-                log_debug("Unsupported mode %d. Disconnecting.", NTP_FIELD_MODE(ntpmsg.field));
+                log_warning("Unsupported mode %d. Disconnecting.", NTP_FIELD_MODE(ntpmsg.field));
                 return manager_connect(m);
         }
 
         root_distance = ntp_ts_short_to_d(&ntpmsg.root_delay) / 2 + ntp_ts_short_to_d(&ntpmsg.root_dispersion);
         if (root_distance > (double) m->max_root_distance_usec / (double) USEC_PER_SEC) {
-                log_info("Server has too large root distance. Disconnecting.");
+                log_warning("Server has too large root distance. Disconnecting.");
                 return manager_connect(m);
         }
 
